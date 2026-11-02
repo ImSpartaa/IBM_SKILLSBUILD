@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NaviBuddy — AI-Powered Employee Onboarding Assistant" />
+  <title>NaviBuddy — AI Onboarding Assistant</title>
+
+  <!-- Tailwind CSS v3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#4F46E5', dark: '#3730A3', light: '#818CF8' },
+            slate: { 900: '#0F172A', 800: '#1E293B' },
+            accent: { DEFAULT: '#F97316', dark: '#EA580C' },
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+          animation: {
+            'fade-up': 'fadeUp 0.25s ease-out forwards',
+            'pulse-dot': 'pulseDot 1.4s ease-in-out infinite',
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="h-full bg-slate-50 font-sans antialiased text-slate-800 flex flex-col">
+
+  <!-- ════════════════════════════════════════ TOP NAV ════════════════════════════════════════ -->
+  <header id="app-header" class="fixed top-0 left-0 right-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-screen-2xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
+      <!-- Logo -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center shadow">
+          <i data-lucide="bot" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-bold text-[15px] tracking-tight text-slate-900">Navi<span class="text-brand">Buddy</span></span>
+        <span class="hidden sm:inline-flex items-center text-xs font-medium bg-accent/10 text-accent px-2 py-0.5 rounded-full">Beta</span>
+      </div>
+
+      <!-- Milestone Tabs (Desktop) -->
+      <nav id="milestone-nav" class="hidden md:flex items-center gap-1" role="tablist" aria-label="Onboarding Milestones">
+        <button role="tab" data-milestone="day1"   class="milestone-tab active-tab" aria-selected="true">🌅 Hari 1</button>
+        <button role="tab" data-milestone="week1"  class="milestone-tab"            aria-selected="false">⭐ Minggu 1</button>
+        <button role="tab" data-milestone="month1" class="milestone-tab"            aria-selected="false">🚀 Bulan 1</button>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-2">
+        <button id="btn-admin-upload" aria-label="HR Admin — Upload Knowledge Base" title="Upload Knowledge Base" class="header-icon-btn">
+          <i data-lucide="database" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-clear-chat" aria-label="Reset chat session" title="Reset Chat" class="header-icon-btn text-red-400 hover:text-red-600 hover:bg-red-50">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+        <button id="btn-sidebar-toggle" aria-label="Toggle sidebar" class="header-icon-btn md:hidden">
+          <i data-lucide="panel-left" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════ MAIN LAYOUT ════════════════════════════════════════ -->
+  <div class="flex flex-1 pt-14 overflow-hidden max-h-screen">
+
+    <!-- ─────────── SIDEBAR ─────────── -->
+    <aside id="sidebar" class="sidebar-panel" aria-label="HR Shortcuts & Knowledge Base">
+      <div class="p-4 border-b border-slate-100">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">Knowledge Base</h2>
+        <ul id="kb-doc-list" class="space-y-1.5" role="list" aria-label="Loaded knowledge base documents">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+
+      <!-- Milestone Nav (Mobile) -->
+      <div class="p-4 border-b border-slate-100 md:hidden">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">Onboarding Stage</h2>
+        <div class="flex flex-col gap-1.5" id="milestone-nav-mobile" role="tablist">
+          <button role="tab" data-milestone="day1"   class="milestone-tab-mobile active-tab-mobile" aria-selected="true">🌅 Hari 1 — Welcome</button>
+          <button role="tab" data-milestone="week1"  class="milestone-tab-mobile"                   aria-selected="false">⭐ Minggu 1 — First Impression</button>
+          <button role="tab" data-milestone="month1" class="milestone-tab-mobile"                   aria-selected="false">🚀 Bulan 1 — Pulse Check</button>
+        </div>
+      </div>
+
+      <!-- HR Shortcuts -->
+      <div class="p-4">
+        <h2 class="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">HR Shortcuts</h2>
+        <ul class="space-y-1.5">
+          <li><button class="sidebar-link" data-quick="Bagaimana cara mengajukan cuti tahunan?"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Pengajuan Cuti</button></li>
+          <li><button class="sidebar-link" data-quick="Cara klaim reimbursement kesehatan"><i data-lucide="heart-pulse" class="w-3.5 h-3.5"></i> Klaim Kesehatan</button></li>
+          <li><button class="sidebar-link" data-quick="Aturan berpakaian di kantor"><i data-lucide="shirt" class="w-3.5 h-3.5"></i> Dress Code</button></li>
+          <li><button class="sidebar-link" data-quick="Di mana lokasi pantry dan fasilitas kantor?"><i data-lucide="coffee" class="w-3.5 h-3.5"></i> Fasilitas Kantor</button></li>
+          <li><button class="sidebar-link" data-quick="Siapa saja yang ada di tim HR?"><i data-lucide="users" class="w-3.5 h-3.5"></i> Struktur Tim HR</button></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Sidebar Backdrop (mobile) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 z-20 bg-black/30 hidden md:hidden" aria-hidden="true"></div>
+
+    <!-- ─────────── CHAT VIEWPORT ─────────── -->
+    <main id="chat-viewport" class="flex-1 flex flex-col overflow-hidden relative" role="main" aria-label="Chat with NaviBuddy">
+
+      <!-- Notification Bar -->
+      <div id="notification-bar" class="hidden" role="status" aria-live="polite"></div>
+
+      <!-- Chat Feed -->
+      <div id="chat-feed" class="chat-feed-scroll flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-2" role="log" aria-live="polite" aria-label="Chat messages">
+        <!-- Messages injected by JS -->
+      </div>
+
+      <!-- ─────────── INPUT AREA ─────────── -->
+      <div class="chat-input-wrapper bg-white border-t border-slate-200 px-4 sm:px-6 pt-3 pb-4 sm:pb-5">
+        <!-- Quick Suggestion Chips -->
+        <div id="quick-chips" class="flex flex-wrap gap-2 mb-3" role="group" aria-label="Quick suggestions">
+          <button class="chip" data-query="Cara Klaim Reimburse">💊 Cara Klaim Reimburse</button>
+          <button class="chip" data-query="Aturan berpakaian di kantor">👔 Aturan Berpakaian</button>
+          <button class="chip" data-query="Di mana lokasi pantry dan fasilitas kantor?">☕ Lokasi Pantry & Fasilitas</button>
+          <button class="chip" data-query="Siapa saja yang ada di tim HR?">👥 Struktur Tim HR</button>
+        </div>
+
+        <!-- Input Row -->
+        <form id="chat-form" class="flex items-end gap-2 sm:gap-3" novalidate>
+          <div class="flex-1 relative">
+            <textarea
+              id="chat-input"
+              class="chat-textarea"
+              placeholder="Tanyakan apa saja ke NaviBuddy…"
+              rows="1"
+              maxlength="2000"
+              aria-label="Message input"
+              aria-multiline="true"
+              autocomplete="off"
+              spellcheck="true"
+            ></textarea>
+          </div>
+          <button type="submit" id="btn-send" class="btn-send" aria-label="Send message">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </form>
+        <p class="text-[11px] text-slate-400 mt-2 text-center">NaviBuddy bisa salah. Verifikasi informasi penting ke tim HR secara langsung.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ════════════════════════════════════════ MODALS ════════════════════════════════════════ -->
+
+  <!-- Admin Upload Modal -->
+  <div id="modal-admin" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-admin-title">
+    <div class="modal-box max-w-lg">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 id="modal-admin-title" class="text-base font-semibold text-slate-900">Upload Kebijakan Baru</h3>
+          <p class="text-xs text-slate-500 mt-0.5">HR Admin — Tambahkan dokumen SOP ke Knowledge Base aktif</p>
+        </div>
+        <button class="modal-close-btn" data-modal="modal-admin" aria-label="Close modal"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label for="admin-doc-title" class="form-label">Judul Dokumen <span class="text-red-500">*</span></label>
+          <input id="admin-doc-title" type="text" class="form-input" placeholder="contoh: Kebijakan WFH 2026" maxlength="120" />
+        </div>
+        <div>
+          <label for="admin-doc-category" class="form-label">Kategori</label>
+          <select id="admin-doc-category" class="form-input">
+            <option value="general">General</option>
+            <option value="leave">Cuti & Izin</option>
+            <option value="health">Kesehatan & Benefit</option>
+            <option value="conduct">Conduct & Peraturan</option>
+            <option value="facilities">Fasilitas & Office</option>
+            <option value="hr_team">Tim HR</option>
+          </select>
+        </div>
+        <div>
+          <label for="admin-doc-keywords" class="form-label">Keywords (pisahkan dengan koma)</label>
+          <input id="admin-doc-keywords" type="text" class="form-input" placeholder="wfh, remote, work from home" />
+        </div>
+        <div>
+          <label for="admin-doc-content" class="form-label">Konten Dokumen <span class="text-red-500">*</span></label>
+          <textarea id="admin-doc-content" class="form-input min-h-[130px] resize-y" placeholder="Paste konten SOP, FAQ, atau kebijakan di sini…" maxlength="5000"></textarea>
+        </div>
+        <div id="admin-upload-error" class="hidden text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2" role="alert"></div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button class="btn-secondary modal-close-btn" data-modal="modal-admin">Batal</button>
+        <button id="btn-admin-save" class="btn-primary"><i data-lucide="plus-circle" class="w-3.5 h-3.5 mr-1.5"></i>Tambahkan ke KB</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Draft Modal -->
+  <div id="modal-email" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-email-title">
+    <div class="modal-box max-w-xl">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 id="modal-email-title" class="text-base font-semibold text-slate-900">Draft Email ke Tim HR</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Salin dan kirim ke hr@perusahaan.com</p>
+        </div>
+        <button class="modal-close-btn" data-modal="modal-email" aria-label="Close modal"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="form-label">Kepada</label>
+          <div class="form-static">hr@perusahaan.com</div>
+        </div>
+        <div>
+          <label class="form-label">Subjek</label>
+          <div id="email-subject" class="form-static font-medium text-slate-800"></div>
+        </div>
+        <div>
+          <label class="form-label">Isi Email</label>
+          <div id="email-body" class="form-static min-h-[160px] whitespace-pre-wrap text-xs leading-relaxed"></div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+        <button class="btn-secondary modal-close-btn" data-modal="modal-email">Tutup</button>
+        <button id="btn-copy-email" class="btn-primary"><i data-lucide="copy" class="w-3.5 h-3.5 mr-1.5"></i>Salin ke Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden" role="status" aria-live="assertive"></div>
+
+  <!-- Main Application Script -->
+  <script src="script.js"></script>
+  <script>
+    // Initialize Lucide icons after DOM + Tailwind are ready
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      NaviBuddyApp.init();
+    });
+  </script>
+</body>
+</html>
